@@ -64,6 +64,7 @@ const getAllProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
 	const { _id } = req.user;
+	const { itemId } = req.body;
 
 	try {
 		const user = await userModel.findById(_id);
@@ -73,10 +74,30 @@ const updateProduct = async (req, res) => {
 				success: false
 			})
 		}
-		const updateProduct = await productModel.
+		const item = await productModel.findById(itemId);
+		if (!item) {
+			return res.status(401).json({
+				message: "Unauthorized access!!, item not found",
+				success: false
+			})
+		}
+		const updateProduct = await productModel.updateOne(
+			{ _id: itemId },
+			{ $set: { itemName, color, brand } }
+		)
+
+		return res.status(200).json({
+			message: "product updated successfully!!",
+			success: true,
+			updateProduct
+		})
 	} catch (error) {
+		return res.status(500).json({
+			message: error,
+			success: false
+		})
 
 	}
 }
 
-export { productCreate, getAllProduct };
+export { productCreate, getAllProduct, updateProduct };
